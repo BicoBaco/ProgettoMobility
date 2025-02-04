@@ -1,0 +1,136 @@
+-- WPpK1HdwV3.CredenzialiAutista definition
+
+CREATE TABLE `CredenzialiAutista` (
+  `idAutista` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `email` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
+  `password` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`idAutista`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+-- WPpK1HdwV3.CredenzialiCliente definition
+
+CREATE TABLE `CredenzialiCliente` (
+  `idCliente` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `email` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
+  `password` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`idCliente`),
+  UNIQUE KEY `CredenzialiCliente_UN` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+-- WPpK1HdwV3.Parcheggio definition
+
+CREATE TABLE `Parcheggio` (
+  `idParcheggio` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `indirizzo` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`idParcheggio`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+-- WPpK1HdwV3.Autista definition
+
+CREATE TABLE `Autista` (
+  `idAutista` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `nome` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `cognome` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `telefono` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`idAutista`),
+  CONSTRAINT `Autista_FK` FOREIGN KEY (`idAutista`) REFERENCES `CredenzialiAutista` (`idautista`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+-- WPpK1HdwV3.Cliente definition
+
+CREATE TABLE `Cliente` (
+  `idCliente` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `nome` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `cognome` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `telefono` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`idCliente`),
+  CONSTRAINT `Cliente_FK` FOREIGN KEY (`idCliente`) REFERENCES `CredenzialiCliente` (`idcliente`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+-- WPpK1HdwV3.DocumentoCliente definition
+
+CREATE TABLE `DocumentoCliente` (
+  `idDocumento` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `tipologia` enum('cartaIdentità','patente') COLLATE utf8_unicode_ci NOT NULL,
+  `foto` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `idCliente` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`idDocumento`),
+  KEY `DocumentoCliente_FK` (`idCliente`),
+  CONSTRAINT `DocumentoCliente_FK` FOREIGN KEY (`idCliente`) REFERENCES `Cliente` (`idcliente`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+-- WPpK1HdwV3.MetodoDiPagamento definition
+
+CREATE TABLE `MetodoDiPagamento` (
+  `idMetodoPagamento` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `numeroCarta` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `dataScadenza` date NOT NULL,
+  `CVV` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `idCliente` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`idMetodoPagamento`),
+  KEY `MetodoDiPagamento_FK` (`idCliente`),
+  CONSTRAINT `MetodoDiPagamento_FK` FOREIGN KEY (`idCliente`) REFERENCES `Cliente` (`idcliente`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+-- WPpK1HdwV3.Veicolo definition
+
+CREATE TABLE `Veicolo` (
+  `idVeicolo` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `tipo` enum('automobile','moto','bicicletta','monopattino') COLLATE utf8_unicode_ci NOT NULL,
+  `codiceSblocco` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `targa` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `idParcheggio` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`idVeicolo`),
+  KEY `Veicolo_FK` (`idParcheggio`),
+  CONSTRAINT `Veicolo_FK` FOREIGN KEY (`idParcheggio`) REFERENCES `Parcheggio` (`idparcheggio`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+-- WPpK1HdwV3.Prenotazione definition
+
+CREATE TABLE `Prenotazione` (
+  `idPrenotazione` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `orarioPartenza` datetime NOT NULL,
+  `orarioArrivo` datetime NOT NULL,
+  `stato` enum('effettuata','in corso','in attesa autista','ritardo','guasto','terminata') COLLATE utf8_unicode_ci NOT NULL,
+  `idCliente` int(10) unsigned NOT NULL,
+  `idVeicolo` int(10) unsigned DEFAULT NULL,
+  `tipoVeicolo` enum('automobile','moto','bicicletta','monopattino') COLLATE utf8_unicode_ci NOT NULL,
+  `idParcheggioPartenza` int(10) unsigned NOT NULL,
+  `idParcheggioArrivo` int(10) unsigned NOT NULL,
+  `idAutista` int(10) unsigned DEFAULT NULL,
+  `idMetodoPagamento` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`idPrenotazione`),
+  KEY `Prenotazione_FK_Cliente` (`idCliente`),
+  KEY `Prenotazione_FK_ParcheggioPartenza` (`idParcheggioPartenza`),
+  KEY `Prenotazione_FK_ParcheggioArrivo` (`idParcheggioArrivo`),
+  KEY `Prenotazione_FK_Autista` (`idAutista`),
+  KEY `Prenotazione_FK_MetodoPagamento` (`idMetodoPagamento`),
+  KEY `Prenotazione_FK_Veicolo` (`idVeicolo`),
+  CONSTRAINT `Prenotazione_FK_Autista` FOREIGN KEY (`idAutista`) REFERENCES `Autista` (`idautista`),
+  CONSTRAINT `Prenotazione_FK_Cliente` FOREIGN KEY (`idCliente`) REFERENCES `Cliente` (`idcliente`),
+  CONSTRAINT `Prenotazione_FK_MetodoPagamento` FOREIGN KEY (`idMetodoPagamento`) REFERENCES `MetodoDiPagamento` (`idmetodopagamento`),
+  CONSTRAINT `Prenotazione_FK_ParcheggioArrivo` FOREIGN KEY (`idParcheggioArrivo`) REFERENCES `Parcheggio` (`idparcheggio`),
+  CONSTRAINT `Prenotazione_FK_ParcheggioPartenza` FOREIGN KEY (`idParcheggioPartenza`) REFERENCES `Parcheggio` (`idparcheggio`),
+  CONSTRAINT `Prenotazione_FK_Veicolo` FOREIGN KEY (`idVeicolo`) REFERENCES `Veicolo` (`idveicolo`) ON DELETE SET NULL ON UPDATE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=109 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+-- WPpK1HdwV3.Ritardo definition
+
+CREATE TABLE `Ritardo` (
+  `idRitardo` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `motivazione` enum('guasto','traffico') COLLATE utf8_unicode_ci NOT NULL,
+  `stimaConsegna` time NOT NULL,
+  `idPrenotazione` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`idRitardo`),
+  KEY `Ritardo_FK` (`idPrenotazione`),
+  CONSTRAINT `Ritardo_FK` FOREIGN KEY (`idPrenotazione`) REFERENCES `Prenotazione` (`idprenotazione`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
