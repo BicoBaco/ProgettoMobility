@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <%- include('../partials/head') -%>
+        <title><%= title %></title>
+    </head>
+    <body>
+        <%- include('../partials/pannelloDiControllo') -%>
+        <%- include('../partials/beginContainer') -%>
+       
+        Amministrazione
+     
+
+            <h1>Aggiungi un autista:</h1>
+
+            <form method="POST" action="/amministrazione/gestioneautisti/aggiungi">
+                <input type="hidden" name="_csrf" value="<%= csrftoken %>">
+                <div class="input-group mb-3">
+                    <span class="input-group-text"> <i class="bi bi-person-fill icona"></i> </span>
+                    <input name="nome" class="form-control" placeholder="Nome" type="text" maxlength="64" required>
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text"> <i class="bi bi-person-fill icona"></i> </span>
+                    <input name="cognome" class="form-control" placeholder="Cognome" type="text" maxlength="64" required>
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text"> <i class="bi bi-envelope-fill icona"></i> </span>
+                    <input name="email" class="form-control" placeholder="Email" type="email" maxlength="128" required>
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text"> <i class="bi bi-telephone-fill icona"></i> </span>
+                    <input name="telefono" id="telefono" type="tel" class="form-control" pattern="^((((\+|00)[1-9]{2})|0)?([1-9]{2,3}))([0-9]{6,10})$" size="32" maxlength="64" placeholder="Telefono" required/>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-block">Registra</button>
+                </div>
+            </form>
+            <hr>
+            <h1>Autisti:</h1>
+            <% if(autisti.length != 0) {%>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Nome</th>
+                    <th scope="col">Cognome</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Telefono</th>
+                    <th scope="col"></th>
+                </tr>
+                </thead>
+                <tbody>
+                    
+                    <% autisti.forEach((element, index) => { %>
+                    <tr>
+                        <td><%= element.nome %></td>
+                        <td><%= element.cognome %></td>
+                        <td><%= element.email %></td>
+                        <td><%= element.telefono %></td>
+                        <td>
+                            <form action="/amministrazione/gestioneautisti/rimuovi" method="post">
+                                <input type="hidden" name="_csrf" value="<%= csrftoken %>">
+                                <input type="hidden" name="autista" value= <%= element.idAutista %>>
+                                <button type="submit" class="btn btn-primary btn-sm">Rimuovi</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+            <% } else { %>
+                <h3>Nessun autista</h3>
+            <% } %>
+        </div>
+
+        <a href="/" class="btn" role="button">Home Page</a>
+        <%- include('../partials/endContainer') -%>
+    </body>
+</html>

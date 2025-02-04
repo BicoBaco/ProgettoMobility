@@ -1,0 +1,30 @@
+<html>
+    <head>
+            <%- include('partials/head') -%>
+            <title>
+                Errore
+            </title>
+    </head>
+
+    <body>
+            <!-- corpo centrale -->
+        <%- include('partials/beginContainer') -%>
+        <h1 class="display-4">Si è verificato un errore...</h1>
+        <br>
+        <h1 class="display-6">
+            <% if (error.status) { %>
+                HTTP Error
+                <%= error.status %>:<br>
+                    <%= message %>
+                        <% } else { %>
+                            <%= message %>
+                                <% } %>
+        </h1>
+        <br><br>
+        <a href="/" class="btn" role="button">Home Page</a>
+
+        <%- include('partials/endContainer') -%>
+
+    </body>
+
+</html>

@@ -1,0 +1,204 @@
+<html>
+    <head>
+        <%- include('../partials/head') %>
+        <title>Gestione Prenotazioni</title>
+        <script src="../javascripts/toggleEdit.js"></script>
+        <script src="../javascripts/updateFormValues.js"></script>
+    </head>
+
+    <body>
+        <%- include('../partials/pannelloDiControllo') -%>
+        <%- include('../partials/beginContainer') %>
+
+        Amministrazione
+        <h1 class="h3 mb-3 font-weight-normal">Prenotazioni</h1>
+
+        <ul class="list-group text-start fs-5">
+            <% prenotazioni.forEach(element => { %>
+                <% let borderColor; %>
+                <% if(element.stato == "terminata") { borderColor = 'dark'; } %>
+                <% if(element.stato == "effettuata") { borderColor = 'primary'; } %>
+                <% if(element.stato == "guasto") { borderColor = 'danger'; } %>
+                <% if(element.stato == "in corso") { borderColor = 'success'; } %>
+                <% if(element.stato == "ritardo") { borderColor = 'warning'; } %>
+                <li class="list-group-item mb-2 border-top-0 border-end-0 border-bottom-0 rounded-0 border-3 border-<%=borderColor%>">
+                    <div class="container">
+                        <div class="row mb-2">
+                            <div class="col-md-3"> #<%= element.idPrenotazione %> </div>
+                            <div class="col-md-4 col-sm-12"> <%= element.nome %> <%= element.cognome %></div>
+                            <div class="col-md-4 col-sm-12"> <%= element.stato.charAt(0).toUpperCase() %><%= element.stato.slice(1) %> </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-3"><b>Partenza:</b></div>
+                          <div class="col-md-4 col-sm-12"><%= element.dataPartenza %> <%= element.orarioPartenza %></div>
+                          <div class="col-md-4 col-sm-12"><%= element.indirizzoPartenza %></div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-3"><b>Arrivo:</b></div>
+                            <div class="col-md-4 col-sm-12"><%= element.dataArrivo %> <%= element.orarioArrivo %></div>
+                            <div class="col-md-4 col-sm-12"><%= element.indirizzoArrivo %></div>
+                          </div>
+                        <div class="row">
+                            <div class="col-md-3 col-sm-12"><%= element.tipoVeicolo %></div>
+                            <div class="col-md-4 col-sm-12"><% if(element.tipoVeicolo == 'automobile') {%> <%= element.targa %><% } %></div>
+                            <div class="col-md-4 col-sm-12"><% if(element.idAutista) {%> <%= element.nomeAutista %> <%= element.cognomeAutista %> <% } %></div>
+                        </div>
+                        <div class="row">                      
+                            <div class="col-md-3 col-sm-6"> 
+                                <% if(element.stato == "guasto") { %>
+                                    <form action="/amministrazione/gestioneprenotazioni/guastoriparato" method="POST">
+                                        <input type="hidden" name="_csrf" value="<%= csrftoken %>">
+                                        <input type="hidden" name="idPrenotazione" value="<%= element.idPrenotazione %>">
+                                        <button type="submit" class="btn btn-danger" style="width:90px">Riparato</button>
+                                    </form>
+                                <% } %>
+                            </div>
+                            <div class="col-md-3 col-sm-12"></div>
+                            <div class="col-md-3 col-sm-12"></div>
+                            <div class="col-md-3 col-sm-12">
+                                <button class="btn btn-primary float-end" data-bs-toggle="modal" 
+                                    data-bs-target="#exampleModal" onclick="updateFormValues('<%= element.idPrenotazione %>')">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </button>
+                            </div>
+                        </div> 
+                    </div>
+                </li>
+            <% }); %>
+        </ul>
+
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Prenotazione</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="/amministrazione/gestioneprenotazioni/modificastato">
+                        <input type="hidden" name="_csrf" value="<%= csrftoken %>">
+                        <input type="hidden" name="idPrenotazione" value="1">
+                        <div class="input-group mb-5">
+                            <span class="input-group-text"> <i class="bi bi-info-circle-fill icona"></i> </span>
+                            <select class="form-select" name="stato" id="selectStato" disabled>
+                                <option value="effettuata">Effettuata</option>
+                                <option value="in corso">In corso</option>
+                                <option value="ritardo">Ritardo</option>
+                                <option value="guasto">Guasto</option>
+                                <option value="terminata">Terminata</option>
+                                <option value="in attesa autista">In attesa dell'autista</option>
+                            </select>
+                            <button type="button" id="editStato" onclick="toggleEdit(this.id)" class="btn btn-primary"><i class="bi bi-pencil-fill"></i></button>
+                            <button type="submit" class="btn btn-primary icona disabled"><i class="bi bi-check-lg"></i></submit>
+                        </div>
+                    </form>
+                    <form method="POST" action="/amministrazione/gestioneprenotazioni/modificaparcheggio">
+                        <input type="hidden" name="_csrf" value="<%= csrftoken %>">
+                        <input type="hidden" name="idPrenotazione" value="1">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text"> <i class="bi bi-arrow-right-square-fill icona"></i> </span>
+                            <select class="form-select" name="parcheggioPartenza" id="selectParcheggioPartenza" disabled>
+                                <% parcheggi.forEach(element => { %>
+                                    <option value="<%=element.idParcheggio%>"><%=element.indirizzo%></option>
+                                  <% }); %>
+                            </select>
+                            <button type="button" id="editParcheggioPartenza" onclick="toggleEdit(this.id)" class="btn btn-primary"><i class="bi bi-pencil-fill"></i></button>
+                            <button type="submit" class="btn btn-primary icona disabled"><i class="bi bi-check-lg"></i></submit>
+                        </div>
+                    </form>
+                    <form method="POST" action="/amministrazione/gestioneprenotazioni/modificapartenza">
+                        <input type="hidden" name="_csrf" value="<%= csrftoken %>">
+                        <input type="hidden" name="idPrenotazione" value="1">
+                        <input type="hidden" name="orarioPartenza" id="hiddenOrarioPartenza" value="1">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text"> <i class="bi bi-hourglass-top icona"></i> </span>
+                            <input type="date" class="form-control" name="dataPartenza" id="pickerDataPartenza" disabled>
+                            <button type="button" id="editDataPartenza" onclick="toggleEdit(this.id)" class="btn btn-primary"><i class="bi bi-pencil-fill"></i></button>
+                            <button type="submit" class="btn btn-primary icona disabled"><i class="bi bi-check-lg"></i></submit>
+                        </div>
+                    </form>
+                    <form method="POST" action="/amministrazione/gestioneprenotazioni/modificapartenza">
+                        <input type="hidden" name="_csrf" value="<%= csrftoken %>">
+                        <input type="hidden" name="idPrenotazione" value="1">
+                        <input type="hidden" name="dataPartenza" id="hiddenDataPartenza" value="1">
+                        <div class="input-group mb-5">
+                            <span class="input-group-text"> <i class="bi bi-clock-fill icona"></i> </span>
+                            <input type="time" class="form-control" name="orarioPartenza" id="pickerOrarioPartenza" disabled>
+                            <button type="button" id="editOrarioPartenza" onclick="toggleEdit(this.id)" class="btn btn-primary"><i class="bi bi-pencil-fill"></i></button>
+                            <button type="submit" class="btn btn-primary icona disabled"><i class="bi bi-check-lg"></i></submit>
+                        </div>
+                    </form>
+                    <form method="POST" action="/amministrazione/gestioneprenotazioni/modificaparcheggio">
+                        <input type="hidden" name="_csrf" value="<%= csrftoken %>">
+                        <input type="hidden" name="idPrenotazione" value="1">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text"> <i class="bi bi-arrow-left-square-fill icona"></i> </span>
+                            <select class="form-select" name="parcheggioArrivo" id="selectParcheggioArrivo" disabled>
+                                <% parcheggi.forEach(element => { %>
+                                    <option value="<%=element.idParcheggio%>"><%=element.indirizzo%></option>
+                                  <% }); %>
+                            </select>
+                            <button type="button" id="editParcheggioArrivo" onclick="toggleEdit(this.id)" class="btn btn-primary"><i class="bi bi-pencil-fill"></i></button>
+                            <button type="submit" class="btn btn-primary icona disabled"><i class="bi bi-check-lg"></i></submit>
+                        </div>
+                    </form>
+                    <form method="POST" action="/amministrazione/gestioneprenotazioni/modificaarrivo">
+                        <input type="hidden" name="_csrf" value="<%= csrftoken %>">
+                        <input type="hidden" name="idPrenotazione" value="1">
+                        <input type="hidden" name="orarioArrivo" id="hiddenOrarioArrivo" value="1">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text"> <i class="bi bi-hourglass-bottom icona"></i> </span>
+                            <input type="date" class="form-control" name="dataArrivo" id="pickerDataArrivo" disabled>
+                            <button type="button" id="editDataArrivo" onclick="toggleEdit(this.id)" class="btn btn-primary"><i class="bi bi-pencil-fill"></i></button>
+                            <button type="submit" class="btn btn-primary icona disabled"><i class="bi bi-check-lg"></i></submit>
+                        </div>
+                    </form>
+                    <form method="POST" action="/amministrazione/gestioneprenotazioni/modificaarrivo">
+                        <input type="hidden" name="_csrf" value="<%= csrftoken %>">
+                        <input type="hidden" name="idPrenotazione" value="1">
+                        <input type="hidden" name="dataArrivo" id="hiddenDataArrivo" value="1">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text"> <i class="bi bi-clock-fill icona"></i> </span>
+                            <input type="time" class="form-control" name="orarioArrivo" id="pickerOrarioArrivo" disabled>
+                            <button type="button" id="editOrarioArrivo" onclick="toggleEdit(this.id)" class="btn btn-primary"><i class="bi bi-pencil-fill"></i></button>
+                            <button type="submit" class="btn btn-primary icona disabled"><i class="bi bi-check-lg"></i></submit>
+                        </div>
+                    </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        <a href="/" class="btn" role="button">Home Page</a>
+        <%- include('../partials/endContainer') %>
+
+        <script type="text/javascript">
+            var prenotazioni = JSON.parse('<%- JSON.stringify(prenotazioni) %>');
+            
+            dictPrenotazioni = {};
+
+            for(i = 0; i < prenotazioni.length; i++) {
+                dictPrenotazioni[prenotazioni[i].idPrenotazione] = prenotazioni[i];
+            }
+
+            selectStato = document.getElementById("selectStato");
+
+            pickerDataPartenza = document.getElementById("pickerDataPartenza");
+			pickerOrarioPartenza = document.getElementById("pickerOrarioPartenza");
+
+            pickerDataArrivo = document.getElementById("pickerDataArrivo");
+			pickerOrarioArrivo = document.getElementById("pickerOrarioArrivo");
+
+			selectParcheggioPartenza = document.getElementById("selectParcheggioPartenza");
+            selectParcheggioArrivo = document.getElementById("selectParcheggioArrivo");
+
+            inputsID = document.getElementsByName("idPrenotazione");
+
+            hiddenOrarioPartenza = document.getElementById("hiddenOrarioPartenza");
+            hiddenOrarioArrivo = document.getElementById("hiddenOrarioArrivo");
+
+            hiddenDataPartenza = document.getElementById("hiddenDataPartenza");
+            hiddenDataArrivo = document.getElementById("hiddenDataArrivo");
+        </script>
+    </body>
+</html>

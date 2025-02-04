@@ -1,0 +1,52 @@
+<html>
+    <head>
+        <%- include('../partials/head') %>
+        <title>Profilo di <%= userData.nome %></title>
+        <script src="../javascripts/toggleEdit.js"></script> 
+    </head>
+
+    <body>
+        <%- include('../partials/header') %>
+        <%- include('../partials/beginContainer') %>
+
+        <h1 class="h3 mb-3 font-weight-normal">Profilo</h1>
+
+        <form method="POST" action="profilo/modificanome">
+            <input type="hidden" name="_csrf" value="<%= csrftoken %>">
+            <div class="input-group mb-3">
+                <span class="input-group-text"> <i class="bi bi-person-fill icona"></i> </span>
+                <input name="nome" class="form-control" value="<%= userData.nome %>" type="text" maxlength="64" required disabled>
+                <button type="button" id="editNome" onclick="toggleEdit(this.id)" class="btn btn-primary"><i class="bi bi-pencil-fill"></i></button>
+                <button type="submit" class="btn btn-primary disabled"><i class="bi bi-check-lg"></i></button>
+            </div>
+        </form>
+        <form method="POST" action="/profilo/modificacognome">
+            <input type="hidden" name="_csrf" value="<%= csrftoken %>">
+            <div class="input-group mb-3">
+                <span class="input-group-text"> <i class="bi bi-person-fill icona"></i> </span>
+                <input name="cognome" class="form-control" value="<%= userData.cognome %>" type="text" maxlength="64" required disabled>
+                <button type="button" id="editCognome" onclick="toggleEdit(this.id)" class="btn btn-primary"><i class="bi bi-pencil-fill"></i></button>
+                <button type="submit" class="btn btn-primary disabled"><i class="bi bi-check-lg"></i></button>
+            </div>
+        </form>
+        <form method="POST" action="/profilo/modificaemail">
+            <input type="hidden" name="_csrf" value="<%= csrftoken %>">
+            <div class="input-group mb-3">
+                <span class="input-group-text"> <i class="bi bi-envelope-fill icona"></i> </span>
+                <input name="email" class="form-control" value="<%= userData.email %>" type="email" maxlength="128" required disabled>
+                <button type="button" id="editEmail" onclick="toggleEdit(this.id)" class="btn btn-primary"><i class="bi bi-pencil-fill"></i></button>
+                <button type="submit" class="btn btn-primary disabled"><i class="bi bi-check-lg"></i></button>
+            </div>
+        </form>
+        <form method="POST" action="/profilo/modificatelefono">
+            <input type="hidden" name="_csrf" value="<%= csrftoken %>">
+            <div class="input-group mb-3">
+                <span class="input-group-text"> <i class="bi bi-telephone-fill icona"></i> </span>
+                <input name="telefono" id="telefono" type="tel" class="form-control" pattern="^((((\+|00)[1-9]{2})|0)?([1-9]{2,3}))([0-9]{6,10})$" size="32" maxlength="64"  value="<%= userData.telefono %>" required disabled/>
+                <button type="button" id="editTelefono" onclick="toggleEdit(this.id)" class="btn btn-primary"><i class="bi bi-pencil-fill"></i></button>
+                <button type="submit" class="btn btn-primary disabled"><i class="bi bi-check-lg"></i></button>
+            </div>
+        </form>
+        <a href="/" class="btn" role="button">Home Page</a>
+        <%- include('../partials/endContainer') %>
+</html>

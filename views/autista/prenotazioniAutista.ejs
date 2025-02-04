@@ -1,0 +1,66 @@
+<html>
+    <head>
+        <%- include('../partials/head') %>
+        <title>Prenotazioni Autista</title>
+    </head>
+    <body>
+        <%- include('../partials/beginContainer') %>
+
+        <h1 class="h3 mb-3 font-weight-normal">Prenotazioni</h1>
+
+        <div class="accordion accordion-flush" id="accordionFlushExample">
+          <% prenotazioni.forEach((element, index) => { %>
+            <% let borderColor; %>
+            <% if(element.stato == "terminata") { borderColor = 'dark'; } %>
+            <% if(element.stato == "effettuata") { borderColor = 'primary'; element.stato = "accettata"} %>
+            <% if(element.stato == "guasto") { borderColor = 'danger'; } %>
+            <% if(element.stato == "in corso") { borderColor = 'success'; } %>
+            <% if(element.stato == "in attesa autista") { borderColor = 'warning'; } %>
+            <div class="accordion-item mb-2 border-start border-bottom-0 border-5 border-<%= borderColor %>">
+              <h2 class="accordion-header" id="flush-heading<%=index%>">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse<%=index%>" aria-expanded="false" aria-controls="flush-collapse<%=index%>">
+                    <div class="container">
+                        <div class="row mb-2">
+                            <div class="col-md"> #<%= element.idPrenotazione %> - <%= element.stato.charAt(0).toUpperCase() %><%= element.stato.slice(1) %></div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-3"><b>Partenza:</b></div>
+                          <div class="col-md-4 col-sm-12"><%= element.orarioPartenza.toLocaleString() %></div>
+                          <div class="col-md-4 col-sm-12"><%= element.indirizzoPartenza %></div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-3"><b>Arrivo:</b></div>
+                            <div class="col-md-4 col-sm-12"> <%= element.orarioArrivo.toLocaleString() %></div>
+                            <div class="col-md-4 col-sm-12"><%= element.indirizzoArrivo %></div>
+                        </div>
+                    </div>
+                </button>
+              </h2>
+              <div id="flush-collapse<%=index%>" class="accordion-collapse collapse" aria-labelledby="flush-heading<%=index%>" data-bs-parent="#accordionFlushExample">
+                <div class="accordion-body">
+                    <div class="container">
+                        <div class="row row-cols-1 row-cols-sm-1 row-cols-xl-3">
+                            <form action="prenotazioni/accetta" method="POST">
+                              <input type="hidden" name="idPrenotazione" value="<%= element.idPrenotazione %>">
+                              <input type="hidden" name="stato" value="<%= element.stato %>">
+                              <input type="hidden" name="_csrf" value="<%= csrftoken %>">
+                              <button type="submit" class="col m-1 btn btn-success">Accetta</button>
+                            </form>
+                            <form action="prenotazioni/rifiuta" method="POST"> 
+                              <input type="hidden" name="idPrenotazione" value="<%= element.idPrenotazione %>">
+                              <input type="hidden" name="stato" value="<%= element.stato %>">
+                              <input type="hidden" name="_csrf" value="<%= csrftoken %>">
+                              <button type="submit" class="col m-1 btn btn-danger">Rifiuta</button>
+                            </form>
+                        </div>
+                      </div>
+                </div>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+
+        <a href="/logout" class="btn" role="button">Logout</a>
+        <%- include('../partials/endContainer') %>
+    </body>
+</html>

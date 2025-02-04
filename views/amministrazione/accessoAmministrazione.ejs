@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head') -%>
+    <title><%= title %></title>
+    <link rel="stylesheet" type="text/css" href="stylesheets/signup.css" />
+</head>
+<body>
+    <%- include('../partials/beginContainer') -%>
+    <form class="container was-validated col-sm-8 mt-3" method="POST" action="/accessoAmministrazione">
+        <input type="hidden" name="_csrf" value="<%= csrftoken %>">
+        <p class="lead text-uppercase mt-3">Accesso Amministrazione</p>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input name="password" id="password" type="password" class="form-control" 
+                   title="Almeno 8 caratteri, una lettera maiuscola e un numero"  required/>
+        </div>
+        <% if(errorMsg) { %> 
+            <p><%=errorMsg.message%></p>
+        <% } %>
+        <button name="ok" id="ok" type="submit" class="btn btn-primary mt-3">Invia</button>
+    </form>
+    <hr>
+    <a href="/login" class="btn" role="button">Indietro</a>
+    <%- include('../partials/endContainer') -%>
+</body>
+</html>

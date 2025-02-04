@@ -1,0 +1,31 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* container della mappa */
+#container-map {
+    z-index: 100;
+    position: relative;
+}
+
+/* larghezza massima dell'offcanvas (header) */
+.offcanvas-start {
+    width: 300px;
+}
+
+/* grandezza delle icone */
+.icona {
+    font-size: 1.5rem;
+}
+
+/* hover per il seleziona tipo veicolo */
+@media (hover: hover) {
+    .img-veicolo:not(.img-veicolo-selected):hover {
+        filter: invert(37%) sepia(41%) saturate(7481%) hue-rotate(208deg) brightness(60%) contrast(80%);
+    }
+}
+.img-veicolo-selected {
+    filter: invert(37%) sepia(41%) saturate(7481%) hue-rotate(208deg) brightness(98%) contrast(103%);
+}

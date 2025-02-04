@@ -1,0 +1,71 @@
+<html>
+    <head>
+        <%- include('../partials/head') %>
+        <title>Metodi di Pagamento</title>
+    </head>
+
+    <body>
+        <%- include('../partials/header') %>
+        <%- include('../partials/beginContainer') %>
+        <div>
+            <h1>Metodi di pagamento:</h1>
+            <% if(userData.length != 0) {%>
+            <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Numero della carta</th>
+                    <th scope="col">Scadenza</th>
+                    <th scope="col"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                    
+                    <% userData.forEach((element, index) => { %>
+                    <tr>
+                        <th scope="row"><%= index+1 %></th>
+                        <td>xxxx-xxxx-xxxx-<%= element.numeroCarta %></td>
+                        <td><%= element.dataScadenza %></td>
+                        <td>
+                            <form method="POST" action="/gestionemetodipagamento/rimuovi">
+                                <input type="hidden" name="_csrf" value="<%= csrftoken %>">
+                                <input type="hidden" name="idMetodoPagamento" value="<%= element.idMetodoPagamento %>">
+                                <button type="submit" class="btn btn-primary btn-block">Rimuovi</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+            <% } else { %>
+                <div class="alert alert-warning" role="alert">
+                    Nessun metodo di pagamento aggiunto
+                </div>
+            <% } %>
+        </div>
+        <hr>
+        <form method="POST" action="/gestionemetodipagamento/aggiungi">
+            <input type="hidden" name="_csrf" value="<%= csrftoken %>">
+            <div class="input-group mb-3">
+                <span class="input-group-text"> <i class="bi bi-credit-card-fill"></i> </span>
+                <input name="numeroCarta" id="numeroCarta" class="form-control" placeholder="xxxx xxxx xxxx xxxx" type="tel" 
+                    inputmode="numeric" pattern="[0-9\s]{16}" maxlength="16" autocomplete="cc-number" required>
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text"> <i class="bi bi-credit-card-2-back-fill"></i> </span>
+                <input name="cvv" id="cvv" class="form-control" placeholder="xxx" type="tel"
+                    inputmode="numeric" pattern="[0-9]{3}" maxlength="3" required>
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text"> <i class="bi bi-calendar-event-fill"></i> </span>
+                <input name="dataScadenza" id="dataScadenza" class="form-control" placeholder="xx/xx" type="tel"
+                    pattern="^((1[0-2])|(0[1-9]))\/(0[1-9]|[12]\d|3[01])$" maxlength="5" required>
+            </div>
+            <div class="pull-right">
+                <button type="submit" class="btn btn-primary btn-block">Aggiungi metodo</button>
+            </div>
+        </form>
+        <a href="/" class="btn" role="button">Home Page</a>
+        <%- include('../partials/endContainer') %>
+    </body>
+</html>

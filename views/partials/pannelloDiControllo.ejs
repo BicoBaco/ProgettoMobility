@@ -1,0 +1,32 @@
+<div id="container" class="container-fluid p-3">    
+    <button class="btn btn-primary btn-circle btn-xl" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
+        <i class="bi bi-list" style="font-size: 1.7rem; color: white;"></i>
+    </button>
+
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="offcanvasExampleLabel">Pannello Di Controllo</h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body bg-dark text-white p-0 pt-3">
+            <div class="d-grid gap-3 mx-3">
+            <a class="btn btn-light" type="button" href="/amministrazione/gestioneautisti">
+                <i class="bi bi-person-circle float-start" style="font-size: 1.5rem; color: black;"></i>
+                <span class="bigger ms-3 float-start">Autisti</span>
+            </a>
+            <a class="btn btn-light" type="button" href="/amministrazione/gestioneprenotazioni">
+                <i class="bi bi-book-half float-start" style="font-size: 1.5rem; color: black;"></i>
+                <span class="bigger ms-3 float-start">Prenotazioni</span>
+            </a>
+            <a class="btn btn-light" type="button" href="/amministrazione/gestioneveicoli">
+                <i class="bi bi-bicycle float-start" style="font-size: 1.5rem; color: black;"></i>
+                <span class="bigger ms-3 float-start">Veicoli</span>
+            </a>
+            <a class="btn btn-light" type="button" href="/logout">
+                <i class="bi bi bi-door-closed-fill float-start" style="font-size: 1.5rem; color: black;"></i>
+                <span class="bigger ms-3 float-start">Logout</span>
+            </a>
+            </div>
+        </div>
+    </div>
+</div>

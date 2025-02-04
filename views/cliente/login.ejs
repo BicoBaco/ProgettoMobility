@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <%- include('../partials/head') -%>
+        <title><%= title %></title>
+    </head>
+    <body>
+        <%- include('../partials/beginContainer') -%>
+        <h1 class="h3 mb-3 font-weight-normal">Login</h1>
+
+        <form method="POST" action="/login">
+            <input type="hidden" name="_csrf" value="<%= csrftoken %>">
+            <div class="input-group mb-3">
+                <span class="input-group-text"> <i class="bi bi-envelope-fill icona"></i> </span>
+                <input name="email" class="form-control" placeholder="Email" type="email" maxlength="128" required>
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text"> <i class="bi bi-lock-fill icona"></i> </span>
+                <input name="password" id="password" class="form-control" placeholder="Password" type="password" required>
+                <button class="btn btn-outline-secondary" onclick="toggleVisibility()" type="button"><i class="bi bi-eye-fill" id="eye"></i></button>
+            </div>
+            <% if(errorMsg) { %>
+                <div class="alert alert-danger" role="alert">
+                    <%=errorMsg.message%>
+                </div>
+            <% } %>
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-block">Login</button>
+            </div>
+        </form>
+        <br>
+        <span>oppure <a href="/signup">Registrati</a></span>
+        <hr>
+        <div>
+            <div class="d-grid gap-2 d-md-block">
+                <a class="btn btn-outline-primary btn-block" href="accessoAutista" class="btn" role="button">Accesso Autisti</a>
+                <a class="btn btn-outline-primary btn-block" href="accessoAmministrazione" class="btn" role="button">Accesso Amministrazione</a>
+            </div>
+        </div>
+        
+        <%- include('../partials/endContainer') -%>
+    </body>
+    <script src="./javascripts/passVisibility.js"></script>
+</html>

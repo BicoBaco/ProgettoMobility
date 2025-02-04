@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <%- include('../partials/head') -%>
+        <title>Pagamento effettuato</title>
+    </head>
+    <body>
+        <%- include('../partials/header') -%>
+        <%- include('../partials/beginContainer') -%>
+
+        <h1>Pagamento effettuato</h1>
+
+        <form action="downloadricevuta" method="POST" target="_blank">
+                <input type="hidden" name="_csrf" value="<%= csrftoken %>">
+                <input type="hidden" name="numeroCarta" value="<%=numeroCarta%>">
+                <input type="hidden" name="costoTotale" value="<%=costoTotale%>">
+                <button type="submit" class="btn btn-primary btn-block">Scarica ricevuta</button>
+        </form>
+        <a href="/" class="btn" role="button">Home Page</a>
+        <%- include('../partials/endContainer') -%>
+    </body>
+</html>

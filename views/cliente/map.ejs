@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <%- include('../partials/head') -%>
+        <title>Progetto Mobility</title>
+        <script src="./javascripts/map.js"></script>
+    </head>
+
+    <body onload="initialPos()">
+      <div id="container-map" class="container-fluid p-3">
+        
+        <%- include('../partials/headerMap') -%>
+
+        <button id="locateMeButton" type="button" class="btn btn-primary btn-circle btn-xl float-end" onclick="panToMe()">
+          <i class="bi bi-compass-fill" style="font-size: 1.5rem; color: white;"></i>
+        </button>
+        <div class="fixed-bottom text-center p-5">
+          <button id="buttonIniziaCorsa" type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#exampleModal">Effettua Prenotazione</button>
+        </div>
+      </div>
+      <div id="map"></div>
+
+      <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Effettua Prenotazione</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form method="POST" action="/cliente/pagamento">
+                <input type="hidden" name="_csrf" value="<%= csrftoken %>">
+                <div id="documentErrorDiv">
+
+                </div>
+                <label for="tipoVeicolo" class="form-label">Scegli il tipo di veicolo</label>
+                <div class="input-group mb-3">
+                  <span class="input-group-text"> <i class="bi bi-bicycle icona"></i> </span>
+                  <select class="form-select" name="tipoVeicolo" id="tipoVeicolo" onchange="checkShowLevels(this.id)" required>
+                      <option value="" selected>Scegli il tipo di veicolo</option>
+                      <option value="automobile">Automobile</option>
+                      <option value="moto">Moto</option>
+                      <option value="bicicletta">Bicicletta</option>
+                      <option value="monopattino">Monopattino</option>
+                  </select>
+                </div>
+                <div id="sceltaLivelli">
+                  <div class="form-check mb-3">
+                    <input class="form-check-input" name="autista" type="checkbox" value="true" id="flexCheckDefault">
+                    <label class="form-check-label" for="flexCheckDefault">
+                      Richiedi autista
+                    </label>
+                  </div>
+                  <!--
+                  <label for="livelloAuto" class="form-label">Scegli il livello di automobile</label>
+                  <div class="input-group mb-3">
+                    <span class="input-group-text"> <i class="bi bi-currency-euro icona"></i> </span>
+                    <select class="form-select" name="parcheggioPartenza" id="livelloAuto" required>
+                        <option selected value="utilitaria">Utilitaria</option>
+                        <option value="suv">Suv</option>
+                        <option value="lusso">Lusso</option>
+                    </select>
+                  </div>
+                  -->
+                </div>
+                <label for="parcheggioPartenza" class="form-label">Scegli il parcheggio e orario di partenza</label>
+                <div class="input-group mb-3">
+                    <span class="input-group-text"> <i class="bi bi-arrow-right-square-fill icona"></i> </span>
+                    <select class="form-select" name="parcheggioPartenza" id="parcheggioPartenza" required>
+                        <option value="" selected>Scegli il parcheggio</option>
+                        <% parcheggi.forEach(element => { %>
+                          <option value="<%=element.idParcheggio%>"><%=element.indirizzo%></option>
+                        <% }); %>
+                    </select>
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text"> <i class="bi bi-hourglass-top icona"></i> </span>
+                    <input type="date" class="form-control" name="dataPartenza" required>
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text"> <i class="bi bi-clock-fill icona"></i> </span>
+                    <input type="time" class="form-control" name="orarioPartenza" required>
+                </div>
+                <label for="parcheggioArrivo" class="form-label">Scegli il parcheggio e orario di arrivo</label>
+                <div class="input-group mb-3">
+                    <span class="input-group-text"> <i class="bi bi-arrow-left-square-fill icona"></i> </span>
+                    <select class="form-select" name="parcheggioArrivo" id="parcheggioArrivo" required>
+                        <option value="" selected>Scegli il parcheggio</option>
+                        <% parcheggi.forEach(element => { %>
+                          <option value="<%=element.idParcheggio%>"><%=element.indirizzo%></option>
+                        <% }); %>
+                    </select>
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text"> <i class="bi bi-hourglass-bottom icona"></i> </span>
+                    <input type="date" class="form-control" name="dataArrivo" required>
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text"> <i class="bi bi-clock-fill icona"></i> </span>
+                    <input type="time" class="form-control" name="orarioArrivo" required>
+                </div>
+                <div id="messageDiv">
+                  <div class="alert alert-danger" role="alert">
+                    Nessun veicolo disponibile per le date selezionate
+                  </div>
+                </div>
+                <div class="d-grid">
+                  <button type="submit" class="btn btn-primary btn-block" id="submitButton">Prenota</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+		<script type="text/javascript">
+      //results delle query
+      
+			var prenotazioni = JSON.parse('<%- JSON.stringify(prenotazioni) %>');
+			var parcheggi = JSON.parse('<%- JSON.stringify(parcheggi) %>');
+			var veicoli = JSON.parse('<%- JSON.stringify(veicoli) %>');
+
+      var documenti = JSON.parse('<%- JSON.stringify(documenti) %>');
+      
+      dictVeicoli = {};
+
+      for(i = 0; i < veicoli.length; i++) {
+        dictVeicoli[veicoli[i].idVeicolo] = veicoli[i].tipo;
+      }
+
+      //oggetti DOM
+			pickerDataPartenza = document.getElementsByName("dataPartenza")[0];
+			pickerOrarioPartenza = document.getElementsByName("orarioPartenza")[0];
+
+      pickerDataArrivo = document.getElementsByName("dataArrivo")[0];
+			pickerOrarioArrivo = document.getElementsByName("orarioArrivo")[0];
+
+			selectParcheggioPartenza = document.getElementById("parcheggioPartenza");
+      selectParcheggioArrivo = document.getElementById("parcheggioArrivo");
+      selectVeicolo = document.getElementById("tipoVeicolo");
+
+      submitButton = document.getElementById("submitButton");
+
+      messageDiv = document.getElementById("messageDiv");
+      messaggioErrore =           "<div class=\"alert alert-danger  \" role=\"alert\">Nessun veicolo disponibile per le date selezionate</div>";
+      messaggioOK =               "<div class=\"alert alert-success \" role=\"alert\">Veicolo disponibile!</div>";
+      messaggioSelezionaOrario =  "<div class=\"alert alert-warning \" role=\"alert\">Seleziona data e ora di partenza e arrivo</div>";
+      messaggioIndietroTempo =    "<div class=\"alert alert-warning \" role=\"alert\">Non puoi prenotare indietro nel tempo!</div>";
+      messaggioErroreDate =       "<div class=\"alert alert-danger  \" role=\"alert\">Data di arrivo antecendente a quella di partenza!</div>";
+
+      messageDiv.innerHTML = "";
+
+      documentErrorDiv = document.getElementById("documentErrorDiv");
+      errorePatente = "<div class=\"alert alert-danger\" role=\"alert\">Non hai caricato la patente! <a href=\"gestioneDocumenti\" class=\"alert-link\">Clicca qui</a> per caricarla</div>";
+      erroreCartaIdentita = "<div class=\"alert alert-danger\" role=\"alert\">Non hai caricato la carta d'identità! <a href=\"gestioneDocumenti\" class=\"alert-link\">Clicca qui</a> per caricarla</div>";
+      let statoAllaPartenza = {};
+      let dataoraPartenza;
+
+      //ricostruzione stato ad ora
+			let stato = {};
+
+			parcheggi.forEach(setParcheggio);
+			
+			function setParcheggio(item, index) {
+				var statoParcheggio = {
+					"automobile": 0,
+					"moto": 0,
+					"bicicletta": 0,
+					"monopattino": 0
+				}
+				
+				stato[item.idParcheggio] = statoParcheggio;
+			}
+			
+			veicoli.forEach(setVeicolo);
+			
+			function setVeicolo(item, index) {
+        if(stato[item.idParcheggio]) {
+          stato[item.idParcheggio][item.tipo] += 1;
+        }
+			}
+			
+      //-----fine ricostruzione stato ad ora
+      
+      selectParcheggioPartenza.addEventListener('change', (event) => {
+        checkDisponibilità();
+			});
+      
+      selectParcheggioArrivo.addEventListener('change', (event) => {
+        checkDisponibilità();
+			});
+
+      selectVeicolo.addEventListener('change', (event) => {
+        if(selectVeicolo.value=='automobile' || selectVeicolo.value=='moto'){    
+          var patente=false;
+          for(i = 0; i < documenti.length; i++){ 
+            if(documenti[i].tipologia =='patente'){
+              patente=true;
+              break;
+            }
+          }
+          if(patente==false){
+            //alert('Non hai caricato la patente, clicca sul link per caricarla prima di continuare');
+            documentErrorDiv.innerHTML = errorePatente;
+            submitButton.disabled = true;
+          } else {
+            submitButton.disabled = false;
+            documentErrorDiv.innerHTML = "";
+          }
+        }else if(selectVeicolo.value=='bicicletta' || selectVeicolo.value=='monopattino'){
+          var cartaIdentita=false;
+          for(i = 0; i < documenti.length; i++){ 
+            if(documenti[i].tipologia=='cartaIdentità' || documenti[i].tipologia=='patente'){
+              cartaIdentita=true;
+              break;
+            }
+          }
+          if(cartaIdentita==false){
+            documentErrorDiv.innerHTML = erroreCartaIdentita;
+            submitButton.disabled = true;
+          } else {
+            submitButton.disabled = false;
+            documentErrorDiv.innerHTML = "";
+          }
+        }
+
+        checkDisponibilità();
+			});
+
+      pickerDataPartenza.addEventListener('change', (event) => {
+				if(pickerOrarioPartenza.value != "") {
+					getStatoAllaPartenza();
+          checkDisponibilità();
+				}
+			});
+			
+			pickerOrarioPartenza.addEventListener('change', (event) => {
+        //TODO check maggiore di oggi
+				if(pickerDataPartenza.value != "") {
+					getStatoAllaPartenza();
+          checkDisponibilità();
+				}
+			});
+			
+      pickerOrarioArrivo.addEventListener('change', (event) => {
+				if(pickerDataArrivo.value != "") {
+					checkDisponibilità();
+				}
+			});
+
+      pickerDataArrivo.addEventListener('change', (event) => {
+				if(pickerOrarioArrivo.value != "") {
+					checkDisponibilità();
+				}
+			});
+
+			function getStatoAllaPartenza() {
+				
+        dataoraPartenza = HTMLDateToObject(pickerDataPartenza.value, pickerOrarioPartenza.value);
+
+        let now=new Date();
+        now.setHours(now.getHours()-2);
+        
+
+        if(dataoraPartenza < now) {
+          messageDiv.innerHTML = messaggioIndietroTempo;
+          submitButton.disabled = true;
+          statoAllaPartenza = {};
+          return;
+        }
+
+				statoAllaPartenza = JSON.parse(JSON.stringify(stato));
+
+				for(i = 0; i < prenotazioni.length; i++) {
+          //&& dictVeicoli[prenotazioni[i].idVeicolo] == selectVeicolo.value ----- old way
+          if(prenotazioni[i].idParcheggioPartenza == selectParcheggioPartenza.value && prenotazioni[i].tipoVeicolo == selectVeicolo.value) {
+
+            dataoraPrenotazionePartenza = MySQLDateToObject(prenotazioni[i].orarioPartenza);
+
+            if(dataoraPrenotazionePartenza < dataoraPartenza && dataoraPrenotazionePartenza > Date.now()) {
+              statoAllaPartenza[prenotazioni[i].idParcheggioPartenza][prenotazioni[i].tipoVeicolo] -= 1;
+            }
+
+            dataoraPrenotazioneArrivo = MySQLDateToObject(prenotazioni[i].orarioArrivo)
+
+            if(dataoraPrenotazioneArrivo < dataoraPartenza && dataoraPrenotazioneArrivo > Date.now()) {
+              statoAllaPartenza[prenotazioni[i].idParcheggioPartenza][prenotazioni[i].tipoVeicolo] += 1;
+            }
+          }
+				}
+			}
+
+      function checkDisponibilità() {
+
+        if(pickerDataArrivo.value == "" || pickerOrarioArrivo.value == "") {
+          messageDiv.innerHTML = messaggioSelezionaOrario;
+          submitButton.disabled = true;
+          return;
+        }
+
+        dataoraArrivo = HTMLDateToObject(pickerDataArrivo.value, pickerOrarioArrivo.value);
+
+        if(dataoraArrivo < dataoraPartenza) {
+          messageDiv.innerHTML = messaggioErroreDate;
+          submitButton.disabled = true;
+          return;
+        }
+
+        let countPartenze = 0;
+
+        if(Object.keys(statoAllaPartenza).length === 0) {
+          
+        } else {
+          for(i = 0; i < prenotazioni.length; i++) {
+            if(prenotazioni[i].idParcheggioPartenza == selectParcheggioPartenza.value && prenotazioni[i].tipoVeicolo == selectVeicolo.value) {
+              
+              dataoraPrenotazionePartenza = MySQLDateToObject(prenotazioni[i].orarioPartenza);
+
+              if(dataoraPrenotazionePartenza < dataoraArrivo && dataoraPrenotazionePartenza > dataoraPartenza) {
+                countPartenze += 1;
+              }
+            }
+          }
+
+          veicoliDisponibili = statoAllaPartenza[selectParcheggioPartenza.value][selectVeicolo.value]
+
+          if(veicoliDisponibili > countPartenze) {
+            messageDiv.innerHTML = messaggioOK;
+            submitButton.disabled = false;
+          } else {
+            messageDiv.innerHTML = messaggioErrore;
+            submitButton.disabled = true;
+          }
+        }
+      }
+
+      function HTMLDateToObject(data, orario) {
+				res = orario.split(":");
+				ora = res[0];
+				minuti = res[1];
+				
+				dataora = new Date(data);
+				dataora.setHours(ora, minuti);
+
+        //GMT+2
+				dataora.setHours(dataora.getHours() - 2);
+				
+        return dataora;
+      }
+
+      function MySQLDateToObject(datetime) {
+        res = datetime.split("T");
+        data = res[0];
+        orario = res[1];
+        
+        dataora = new Date(data);
+        res = orario.split(":");
+        ora = res[0];
+        minuti = res[1];
+        dataora.setHours(ora, minuti);
+
+        return dataora;
+      }
+
+		</script>
+      <script src="./javascripts/checkShowLevels.js"></script>
+      <script async
+          src="https://maps.googleapis.com/maps/api/js?key=<INSERT GOOGLE MAPS API KEY>&callback=initMap">
+      </script>
+      <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.min.js" integrity="sha384-Atwg2Pkwv9vp0ygtn1JAojH0nYbwNJLPhwyoVbhoPwBhjQPR5VtM2+xf0Uwh9KtT" crossorigin="anonymous"></script>        
+    </body>
+</html>

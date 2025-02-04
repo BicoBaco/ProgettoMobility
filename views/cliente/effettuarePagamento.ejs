@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <%- include('../partials/head') -%>
+        <title>Pagamento</title>
+    </head>
+    <body>
+        <%- include('../partials/header') -%>
+        <%- include('../partials/beginContainer') -%>
+        <ul class="list-group list-group-flush text-start fs-5 mb-3">
+            <li class="list-group-item fw-bold">Prenotazione</li>
+            <li class="list-group-item">Tariffa <%= informazioniPrenotazione.tipoVeicolo %>:
+                <span class="float-end" id="spanTariffa">
+                <% if(informazioniPrenotazione.tipoVeicolo == "automobile") { %>
+                    10.00
+                <% } else if (informazioniPrenotazione.tipoVeicolo == "moto") { %>
+                    8.00
+                <% } else if (informazioniPrenotazione.tipoVeicolo == "bicicletta") { %>
+                    3.00
+                <% } else if (informazioniPrenotazione.tipoVeicolo == "monopattino") { %>
+                    2.50
+                <% } %>
+                € / h
+                <span>
+            </li>
+            <li class="list-group-item">Autista: <span class="float-end">nessuno<span></li>
+            <li class="list-group-item"><%= informazioniPrenotazione.dataPartenza %> <%= informazioniPrenotazione.orarioPartenza %> -
+                                        <%= informazioniPrenotazione.dataArrivo %> <%= informazioniPrenotazione.orarioArrivo %></li>
+            <li class="list-group-item">Totale ore: <span class="float-end" id="spanTotaleOre">//<span></li>
+            <li class="list-group-item">Costo totale: <span class="float-end" id="spanCostoTotale">//€<span></span></li>
+        </ul>
+        <form method="POST" action="/cliente/completaprenotazione">
+            <input type="hidden" name="_csrf" value="<%= csrftoken %>">
+
+            <input type="hidden" name="tipoVeicolo"         id="tipoVeicolo"        value="<%= informazioniPrenotazione.tipoVeicolo %>">
+            <input type="hidden" name="parcheggioPartenza"  id="parcheggioPartenza" value="<%= informazioniPrenotazione.parcheggioPartenza %>">
+            <input type="hidden" name="dataPartenza"        id="dataPartenza"       value="<%= informazioniPrenotazione.dataPartenza %>">
+            <input type="hidden" name="orarioPartenza"      id="orarioPartenza"     value="<%= informazioniPrenotazione.orarioPartenza %>">
+            <input type="hidden" name="parcheggioArrivo"    id="parcheggioArrivo"   value="<%= informazioniPrenotazione.parcheggioArrivo %>">
+            <input type="hidden" name="dataArrivo"          id="dataArrivo"         value="<%= informazioniPrenotazione.dataArrivo %>">
+            <input type="hidden" name="orarioArrivo"        id="orarioArrivo"       value="<%= informazioniPrenotazione.orarioArrivo %>">
+            <input type="hidden" name="autista"             id="autista"            value="<%= informazioniPrenotazione.autista %>">
+            <input type="hidden" name="numeroCarta"         id="hiddenNumeroCarta"  value="">
+
+            <% if(metodiDiPagamento.length != 0) {%>
+            <div class="input-group mb-3">
+                <span class="input-group-text"><i class="bi bi-credit-card-2-front-fill"></i></span>
+                <select class="form-select form-select-lg" id="metodoPagamento" name="metodoPagamento" aria-label="Default select example" required>
+                    <option value="" selected>Seleziona metodo di pagamento</option>
+                    <% metodiDiPagamento.forEach((element, index) => { %>
+                        <option value="<%= element.idMetodoPagamento %>">xxxx-xxxx-xxxx-<%= element.numeroCarta %></option>
+                    <% }); %>
+                </select>
+            </div>
+            <div class="d-grid">
+                <input class="btn btn-primary" type="submit" value="Effettua Pagamento">
+            </div>
+            <% } else { %>
+                <div class="alert alert-danger" role="alert">
+                    Non hai caricato nessun metodo di pagamento! <a href="../gestioneMetodiPagamento" class="alert-link">Clicca qui</a> per caricarlo
+                </div>
+            <% } %>
+        </form>
+        
+        <%- include('../partials/endContainer') -%>
+        <script type="text/javascript">
+            var informazioniPrenotazione = JSON.parse('<%- JSON.stringify(informazioniPrenotazione) %>');
+            var metodiDiPagamento = JSON.parse('<%- JSON.stringify(metodiDiPagamento) %>');
+
+            spanTotaleOre = document.getElementById("spanTotaleOre");
+            spanCostoTotale = document.getElementById("spanCostoTotale");
+
+            dataoraPartenza = StringToDateObject(informazioniPrenotazione.dataPartenza, informazioniPrenotazione.orarioPartenza);
+            dataoraArrivo = StringToDateObject(informazioniPrenotazione.dataArrivo, informazioniPrenotazione.orarioArrivo);
+            
+            /*
+            tipoVeicolo =               document.getElementById("tipoVeicolo");
+            hiddenParcheggioPartenza =  document.getElementById("parcheggioPartenza");
+            hiddenDataPartenza =        document.getElementById("dataPartenza");
+            hiddenOrarioPartenza =      document.getElementById("orarioPartenza");
+            hiddenParcheggioArrivo =    document.getElementById("parcheggioArrivo");
+            hiddenDataArrivo =          document.getElementById("dataArrivo");
+            hiddenOrarioArrivo =        document.getElementById("orarioArrivo");
+            */
+
+            var hours = Math.abs(dataoraArrivo - dataoraPartenza) / 36e5;
+
+            spanTotaleOre.innerHTML = hours;
+
+            var tariffa;
+            if(informazioniPrenotazione.tipoVeicolo == "automobile") {
+                tariffa = 10;
+            } else if (informazioniPrenotazione.tipoVeicolo == "moto") {
+                tariffa = 8;
+            } else if (informazioniPrenotazione.tipoVeicolo == "bicicletta") {
+                tariffa = 3;
+            } else if (informazioniPrenotazione.tipoVeicolo == "monopattino") {
+                tariffa = 2.5;
+            }
+
+            var costoTotale = hours * tariffa;
+            
+            spanCostoTotale.innerHTML = costoTotale + "€";
+
+            function StringToDateObject(data, orario) {
+				res = orario.split(":");
+				ora = res[0];
+				minuti = res[1];
+				
+				dataora = new Date(data);
+				dataora.setHours(ora, minuti);
+
+                //GMT+2
+				//dataora.setHours(dataora.getHours() - 2);
+				
+                return dataora;
+            }
+
+            hiddenNumeroCarta = document.getElementById("hiddenNumeroCarta");
+         
+            metodoPagamento.addEventListener("click", function() {
+                hiddenNumeroCarta.value = this.options[this.selectedIndex].text;
+                console.log( this );
+                console.log( hiddenIdVeicolo.value );
+            });
+
+            //calcolare il costo totale
+            //mettere gli hidden input
+        </script>
+    </body>
+</html>

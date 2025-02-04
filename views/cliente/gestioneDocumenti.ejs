@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <%- include('../partials/head') -%>
+        <title>Progetto Mobility</title>
+    </head>
+    <body>
+        <%- include('../partials/header') -%>
+        <%- include('../partials/beginContainer') -%>
+        <h1 class="h3 mb-3 font-weight-normal">Carica Documenti</h1>
+
+        <form enctype='multipart/form-data' method="POST" action="gestioneDocumenti/aggiungidocumento">
+            <input type="hidden" name="_csrf" value="<%= csrftoken %>">
+            <div class="input-group mb-3">
+                <span class="input-group-text"> <i class="bi bi-file-earmark-person-fill icona"></i> </span>
+                <select name="tipologia" class="form-select" required>
+                    <option selected>Seleziona tipo documento</option>
+                    <option value="cartaIdentità">Carta d'identità</option>
+                    <option value="patente">Patente</option>
+                </select>
+            </div>
+            <div class="input-group mb-3">
+                <input name="foto" id="foto" type="file" class="form-control" title="foto" accept="image/png, image/jpeg" required/>
+            </div>
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-block">Carica</button>
+            </div>
+        </form>
+
+        <hr>
+        <h1>Documenti caricati:</h1>
+        <% if(documenti.length != 0) {%>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">Tipologia</th>
+                <th scope="col">Foto</th>
+                <th scope="col"></th>
+            </tr>
+            </thead>
+            <tbody>
+                
+                <% documenti.forEach((element, index) => { %>
+                <tr>
+                    <td><% if(element.tipologia == "patente") { %> 
+                            Patente
+                        <% } else { %>
+                            Carta d'identità
+                        <% } %>
+                    </td>
+                    <% var path = "uploads/" + element.idDocumento + "." + element.foto; %>
+                    <td><form method="POST" action="gestionedocumenti/downloadDocumento">
+                            <input type="hidden" name="_csrf" value="<%= csrftoken %>">
+                            <input type="hidden" name="path" value="<%= path %>">
+                            <button type="submit" class="btn btn-primary btn-block">Download</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form method="POST" action="gestionedocumenti/rimuovidocumento">
+                            <input type="hidden" name="_csrf" value="<%= csrftoken %>">
+                            <input type="hidden" name="idDocumento" value="<%= element.idDocumento %>">
+                            <button type="submit" class="btn btn-primary btn-block">Rimuovi</button>
+                        </form>
+                    </td>
+                </tr>
+                <% }); %>
+            </tbody>
+        </table>
+        <% } else { %>
+            <h3>Nessun documento</h3>
+        <% } %>
+        
+        <a href="/" class="btn" role="button">Home Page</a>
+        <%- include('../partials/endContainer') -%>
+    </body>
+</html>

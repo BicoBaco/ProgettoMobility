@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <%- include('partials/head') -%>
+        <title>Progetto Mobility</title>
+    </head>
+    <body class="text-center">
+        <%- include('partials/beginContainer') -%>
+            <h1>Ciao 
+                <% if(email) {   %>
+                <%=email%>
+                <% } else if(admin) { %>
+                    admin
+                <% } else { %>
+                    nuovo utente
+                <% } %>
+            </h1>
+            <% if(!email && !admin && !autista) { %>
+                <a href="signup" class="btn" role="button">Registrati</a>
+                <a href="login" class="btn" role="button">Accedi</a>
+                <a href="accessoAmministrazione" class="btn" role="button">Accesso Amministrazione</a>
+                <a href="accessoAutista" class="btn" role="button">Accesso Autisti</a>
+            <% } else if(admin) { %>
+                <a href="amministrazione" class="btn" role="button">Pannello di controllo</a>
+                <a href="logout" class="btn" role="button">Logout</a>
+            <% } else if(autista) { %>
+                <a href="autista/prenotazioni" class="btn" role="button">Prenotazioni</a>
+                <a href="logout" class="btn" role="button">Logout</a>
+            <% } else { %>
+                <a href="gestionedocumenti" class="btn" role="button">Carica documenti</a>
+                <a href="prenotazione" class="btn" role="button">Prenota</a>
+                <a href="cliente/prenotazioni" class="btn" role="button">Prenotazioni effettuate</a>
+                <a href="vehicleSelection" class="btn" role="button">Selezione veicolo</a>
+                <a href="profilo" class="btn" role="button">Profilo</a>
+                <a href="gestioneMetodiPagamento" class="btn" role="button">Metodi di Pagamento</a>
+                <a href="logout" class="btn" role="button">Logout</a>
+            <% } %>
+            
+        <%- include('partials/endContainer') -%>
+    </body>
+</html>
+
+<!-- 
+Cliente:
+    idCliente
+    nome
+    cognome
+    telefono
+
+Credenziali:
+    idCliente
+    email
+    password
+
+Documento:
+    idDocumento
+    idCliente
+    tipologia
+    foto
+-->

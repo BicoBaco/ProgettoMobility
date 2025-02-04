@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <%- include('../partials/head') -%>
+        <title><%= title %></title>
+    </head>
+    <body>
+        <%- include('../partials/beginContainer') -%>
+       
+        <h1 class="h3 mb-3 font-weight-normal">Amministrazione</h1>
+        <br>
+
+        <div class="d-grid gap-2 d-md-block">
+            <a href="amministrazione/gestioneautisti" class="btn btn-primary btn-block" role="button">Gestione Autisti</a>
+            <a href="amministrazione/gestioneprenotazioni" class="btn btn-primary btn-block" role="button">Gestione Prenotazioni</a>
+            <a href="amministrazione/gestioneveicoli" class="btn btn-primary btn-block" role="button">Gestione Veicoli</a>
+            <a href="logout" class="btn btn-primary btn-block" role="button">Logout</a>
+        </div>
+        <%- include('../partials/endContainer') -%>
+    </body>
+</html>

@@ -1,0 +1,11 @@
+.weak {
+    background-color: rgba(255, 0, 0, 0.3);
+}
+
+.medium {
+    background-color: rgba(255, 165, 0, 0.3);
+}
+
+.strong {
+    background-color: rgba(60, 179, 113, 0.3);
+}
