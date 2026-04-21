@@ -8,6 +8,6 @@ Contributors: Vincenzo Messina, Giorgio Tocco, Roberto Graffeo, Marco Costanzo
 ProgettoMobility is a vehicle rental web and mobile application with a user-friendly interface for managing reservations.
 
 ## Technologies Used
-Back-end: NodeJS and Express
-Front-end: HTML, CSS (Bootstrap) and JavaScript.
-MySQL DBMS - Manages relational database storage.
+- Back-end: NodeJS and Express
+- Front-end: HTML, CSS (Bootstrap) and JavaScript.
+- MySQL DBMS - Manages relational database storage.
